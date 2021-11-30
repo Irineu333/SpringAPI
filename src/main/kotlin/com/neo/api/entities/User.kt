@@ -1,28 +1,47 @@
 package com.neo.api.entities
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.apache.juli.logging.Log
 import org.hibernate.Hibernate
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
+import org.springframework.lang.NonNull
 import java.io.Serializable
 import javax.persistence.*
 
 @Entity
 @Table(name = "tb_user")
-data class User(
+class User() : Serializable {
+
+    constructor(
+        name: String,
+        email: String,
+        pwHash: String,
+        orders: List<Order> = listOf()
+    ) : this() {
+        this.name = name
+        this.email = email
+        this.pwHash = pwHash
+        this.orders = orders
+    }
+
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long? = null
+
     @Column(nullable = false)
-    val name: String = "",
+    lateinit var name: String
+
     @Column(nullable = false)
-    val email: String = "",
-    @JsonIgnore
+    lateinit var email: String
+
     @Column(nullable = false)
-    val pwHash : String = "",
-    @JsonIgnore
-    @OneToMany(mappedBy = "client") //optional
-    val orders : List<Order> = listOf()
-) : Serializable {
+    lateinit var pwHash: String
+
+    @OneToMany(mappedBy = "client")
+    @get:JsonIgnore
+    var orders: List<Order> = listOf()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

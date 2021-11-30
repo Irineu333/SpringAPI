@@ -16,8 +16,6 @@ class OrderItem(
     order: Order? = null,
     @Column(nullable = false)
     val quantity: Int = 0,
-    @Column(nullable = false)
-    val price: Double = 0.0
 ) : Serializable {
 
     init {
@@ -35,6 +33,11 @@ class OrderItem(
     fun setOrder(order: Order) {
         id?.order = order
     }
+
+    @Column(nullable = false)
+    val price: Double = product?.price ?: 0.0
+
+    val subTotal : Double get() = price * quantity
 
     @JsonIgnore
     fun getOrder(): Order? {

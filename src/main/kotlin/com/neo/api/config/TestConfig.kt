@@ -14,16 +14,11 @@ import java.time.Instant
 @Configuration
 @Profile("test")
 class TestConfig(
-    @Autowired
-    private val userRepository: UserRepository,
-    @Autowired
-    private val orderRepository: OrderRepository,
-    @Autowired
-    private val categoryRepository: CategoryRepository,
-    @Autowired
-    private val productRepository: ProductRepository,
-    @Autowired
-    private val orderItemRepository: OrderItemRepository
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val orderRepository: OrderRepository,
+    @Autowired private val categoryRepository: CategoryRepository,
+    @Autowired private val productRepository: ProductRepository,
+    @Autowired private val orderItemRepository: OrderItemRepository
 ) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
@@ -33,22 +28,29 @@ class TestConfig(
         val category3 = Category(null,"Computers")
         categoryRepository.saveAll(listOf(category1, category2, category3))
 
-        val product1 = Product(null, "TV", price = 20.0, categories = setOf(category1))
+        val product1 = Product(null, "Smart TV", price = 20.0, categories = setOf(category1))
         val product2 = Product(null, "Smartphone", price = 10.0, categories = setOf(category1))
         val product3 = Product(null,"Notebook", price = 5.0, categories = setOf(category1, category3))
         productRepository.saveAll(listOf(product1, product2, product3))
 
-        val user1 = User(null, "Irineu", "mmmirineusilva@gmail.com", "12345".sha256().toHex())
-        val user2 = User(null, "Carlos", "carlos@gmail.com", "meuOvo".sha256().toHex())
-        val user3 = User(null,"Kleber", "kleber@gmail.com", "123456".sha256().toHex())
+        val user1 = User( "Irineu", "mmmirineusilva@gmail.com", "12345".sha256().toHex())
+        val user2 = User("Carlos", "carlos@gmail.com", "meuOvo".sha256().toHex())
+        val user3 = User("Kleber", "kleber@gmail.com", "123456".sha256().toHex())
         userRepository.saveAll(listOf(user1, user2, user3))
 
         val order1 = Order(null, OrderStatus.PAID, Instant.now(), user2)
         val order2 = Order(null,OrderStatus.CANCELED, Instant.now(), user2)
         val order3 = Order(null,OrderStatus.WAITING_PAYMENT, Instant.now(), user1)
-        orderRepository.saveAll(listOf(order1, order2, order3))
+        val order4 = Order(null,OrderStatus.SHIPPED, Instant.now(), user1)
+        orderRepository.saveAll(listOf(order1, order2, order3, order4))
 
-        val orderItem1 = OrderItem(null, product1, order2, 2, product1.price)
+        val orderItem1 = OrderItem(null, product1, order2, 2)
         orderItemRepository.saveAll(listOf(orderItem1))
+
+        order1.let {
+            val payment1 = Payment(null, Instant.now(), it)
+            it.payment = payment1
+            orderRepository.save(it)
+        }
     }
 }

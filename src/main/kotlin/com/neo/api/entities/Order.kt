@@ -16,19 +16,27 @@ data class Order(
     val id: Long? = null,
     @Column(nullable = false)
     private val orderStatus: OrderStatus? = null,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(
+        shape = JsonFormat.Shape.STRING,
+        pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        timezone = "GMT"
+    )
     @Column(nullable = false)
     val moment: Instant? = null,
     @ManyToOne
     @JoinColumn(name = "client_id")
     val client: User? = null,
     @OneToMany(mappedBy = "id.order")
-    val items : Set<OrderItem> = setOf()
+    val items: Set<OrderItem> = setOf(),
+    @OneToOne(mappedBy = "order", cascade = [CascadeType.ALL])
+    var payment: Payment? = null
 ) : Serializable {
 
-    fun getOrderStatus() : Int? {
+    fun getOrderStatus(): Int? {
         return orderStatus?.code
     }
+
+    val total: Double get() = items.map { it.subTotal }.reduce { acc, d -> acc + d }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
